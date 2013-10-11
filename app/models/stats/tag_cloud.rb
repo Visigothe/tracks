@@ -10,16 +10,12 @@ class TagCloud
     @cut_off = cut_off
   end
 
-  def divisor
-    @divisor = ((max - min) / levels) + 1
-  end
-
   def max
     tag_counts.max
   end
 
-  def min
-    return 0
+  def relative_size(tag)
+    (tag.count.to_i - min)/divisor
   end
 
   def tags
@@ -39,8 +35,16 @@ class TagCloud
 
   private
 
+  def divisor
+    @divisor = ((max - min) / levels) + 1
+  end
+
   def levels
     return 10
+  end
+
+  def min
+    return 0
   end
 
   # TODO: parameterize limit
