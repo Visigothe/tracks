@@ -554,15 +554,11 @@ class StatsController < ApplicationController
   def get_stats_tags
     cloud = TagCloud.new(current_user, @cut_off_3months)
     cloud.compute
-    # tag cloud code inspired by this article
-    #  http://www.juixe.com/techknow/index.php/2006/07/15/acts-as-taggable-tag-cloud/
-
-    levels=10
-    # TODO: parameterize limit
 
     @tags_for_cloud = cloud.tags_for_cloud
     @tags_min = cloud.tags_min
     @tags_divisor = cloud.tags_divisor
+
     @tags_for_cloud_90days = cloud.tags_for_cloud_90days
     @tags_min_90days = cloud.tags_min_90days
     @tags_divisor_90days = cloud.tags_divisor_90days
