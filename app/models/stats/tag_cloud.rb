@@ -3,34 +3,47 @@
 
 class TagCloud
 
-  attr_reader :user, :tags, :min, :divisor
+  attr_reader :user, :divisor
 
   def initialize(user, cut_off=nil)
     @user = user
     @cut_off = cut_off
   end
 
-  def compute
-    # TODO: parameterize limit
-    levels=10
+  def divisor
+    @divisor = ((max - min) / levels) + 1
+  end
 
-    params = [sql(@cut_off), user.id]
-    if @cut_off
-      params += [@cut_off, @cut_off]
+  def max
+    tag_counts.max
+  end
+
+  def min
+    return 0
+  end
+
+  def tags
+    unless @tags
+      params = [sql(@cut_off), user.id]
+      if @cut_off
+        params += [@cut_off, @cut_off]
+      end
+      @tags = Tag.find_by_sql(params).sort_by { |tag| tag.name.downcase }
     end
-    @tags = Tag.find_by_sql(params).sort_by { |tag| tag.name.downcase }
+    @tags
+  end
 
-    max, @min = 0, 0
-    @tags.each { |t|
-      max = [t.count.to_i, max].max
-      @min = [t.count.to_i, @min].min
-    }
-
-    @divisor = ((max - @min) / levels) + 1
+  def tag_counts
+    @tag_counts ||= tags.map {|t| t.count.to_i}
   end
 
   private
 
+  def levels
+    return 10
+  end
+
+  # TODO: parameterize limit
   def sql(cut_off = nil)
     query = "SELECT tags.id, tags.name AS name, count(*) AS count"
     query << " FROM taggings, tags, todos"
